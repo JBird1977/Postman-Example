@@ -1,0 +1,330 @@
+{
+	"info": {
+		"_postman_id": "358aa07c-ac79-4d31-9af1-61fa6f2e9d18",
+		"name": "Postman Assessment Exam",
+		"description": "POSTMAN Training sample API to use\r\n\r\nhttp://dummy.restapiexample.com/\r\n\r\n1\t/employee\tGET\tJSON\thttp://dummy.restapiexample.com/api/v1/employees\tGet all employee data\tDetails\r\n2\t/employee/{id}\tGET\tJSON\thttp://dummy.restapiexample.com/api/v1/employee/1\tGet a single employee data\tDetails\r\n3\t/create\tPOST\tJSON\thttp://dummy.restapiexample.com/api/v1/create\tCreate new record in database\tDetails\r\n4\t/update/{id}\tPUT\tJSON\thttp://dummy.restapiexample.com/api/v1/update/21\tUpdate an employee record\tDetails\r\n5\t/delete/{id}\tDELETE\tJSON\thttp://dummy.restapiexample.com/api/v1/delete/2\tDelete an employee record\tDetails\r\n-----------------------------------------------------------------------------------------------------------------------------------\r\n\r\nTask:\r\n1. Create Sample collection for all above methods\r\n2. Use environment variable for endpoints \r\n3. Create 3 or more records using data file.\r\n4. Add assertions to validate each field coming in response is not null and values are matching with data file values\r\n5. Update-delete methods - use newly generated record number taken from previous create request's response\r\n6. Run collection thru runner and via newman to show the execution",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GET",
+			"item": [
+				{
+					"name": "Employee Details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "822445b1-7b0b-4faa-9691-1c4bd18f2480",
+								"exec": [
+									"var jsonInfo = pm.response.json();\r",
+									"var length_Of_Json_Data_Array = jsonInfo.data.length;\r",
+									"for (i=0; i < length_Of_Json_Data_Array; i++)\r",
+									"    {\r",
+									"        console.log(\"ID: \"+ jsonInfo.data[i].id);\r",
+									"        console.log(\"Employee Name: \"+ jsonInfo.data[i].employee_name);\r",
+									"        console.log(\"Employee Salary: \"+ jsonInfo.data[i].employee_salary);\r",
+									"        console.log(\"Employee Age: \"+ jsonInfo.data[i].employee_age);\r",
+									"    }\r",
+									"\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/employees",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"employees"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Specific Employee",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "2ff077e2-476b-4ec5-92e0-27faa1e50874",
+								"exec": [
+									"// var jsonData = pm.response.json();\r",
+									"// pm.environment.set(\"name\", jsonData.data[0].employee_name);\r",
+									"// console.log(jsonData.data[0].employee_name)\r",
+									"\r",
+									"//console.log(pm.environment.get(\"name\"));\r",
+									"\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/employee/21",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"employee",
+								"21"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "POST",
+			"item": [
+				{
+					"name": "Create User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "6ef8c7c6-dc99-407b-be7a-d7914b65a222",
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"//We convert Age and Salary to an Integer because JSON Data is String by default\r",
+									"//while numbers from the CSV will be passed in as an Integer\r",
+									"//not doing this conversion will cause the tests below to fail due to a type mismatch\r",
+									"var intAge = parseInt(jsonData.data.age);\r",
+									"var intSalary = parseInt(jsonData.data.salary);\r",
+									"\r",
+									"pm.test(\"Name not null\", function() {\r",
+									"    pm.expect(jsonData.data.name).not.equal(null);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Age not null\", function() {\r",
+									"    pm.expect(jsonData.data.age).not.eql(null);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Salary not null\", function() {\r",
+									"    pm.expect(jsonData.data.salary).not.eql(null);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify name\", function() {\r",
+									"    pm.expect(jsonData.data.name).to.equal(pm.iterationData.get(\"employee_name\"));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify age\", function() {\r",
+									"    \r",
+									"    pm.expect(intAge).to.equal(pm.iterationData.get(\"employee_age\"));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Verify salary\", function() {\r",
+									"    pm.expect(intSalary).to.equal(pm.iterationData.get(\"employee_salary\"));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.environment.set(\"id\", jsonData.data.id);\r",
+									"console.log(\"ID Number generated during POST request is: \"+ pm.environment.get(\"id\"));\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{employee_name}}\",\n    \"salary\": \"{{employee_salary}}\",\n    \"age\": \"{{employee_age}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/create",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"create"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "PUT",
+			"item": [
+				{
+					"name": "Update Employee Record Details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "4f56ffd4-ab87-44c4-bb8d-cae13f5f3141",
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"console.log(\"ID Number is: \"+ pm.environment.get(\"id\"));\r",
+									"console.log(\"New name is: \"+ jsonData.data.name);\r",
+									"console.log(\"New age is: \"+ jsonData.data.age);\r",
+									"console.log(\"New salary is: \"+ jsonData.data.salary);\r",
+									"\r",
+									"\r",
+									"\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Dr. Evil\",\n    \"salary\": \"1000000\",\n    \"age\": \"34\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/update/{{id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"update",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "DELETE",
+			"item": [
+				{
+					"name": "DELETE Employee Record",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f07ea50f-694b-41d6-bd59-9b400d99a83f",
+								"exec": [
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "43560473-8e43-461e-9133-adefafa619fe",
+								"exec": [
+									"console.log(\"Deleting id: \"+ pm.environment.get(\"id\"));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/delete/{{id}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"delete",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "6e9a232d-b7ff-45f8-8a4d-dedc2655382d",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "a584fca0-7df4-4b37-915e-1e8105472d9e",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
